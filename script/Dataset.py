@@ -44,7 +44,7 @@ class Dataset(data.Dataset):
         # using global calib file
         self.global_calib = path + '/calib_cam_to_cam.txt'
 
-        self.proj_matrix = get_P(self.global_calib)
+        # self.proj_matrix = get_P(self.global_calib)
 
         # get index of image_2 files
         self.ids = [x.split('.')[0] for x in sorted(os.listdir(self.top_calib_path))]
@@ -101,7 +101,9 @@ class Dataset(data.Dataset):
 
         label = self.labels[id][str(line_num)]
 
-        obj = DetectedObject(self.curr_img, label['Class'], label['Box_2D'], self.proj_matrix, label=label)
+        current_calib_file = self.top_calib_path + f'{id}.txt'
+        proj_matrix = get_P(current_calib_file)
+        obj = DetectedObject(self.curr_img, label['Class'], label['Box_2D'], proj_matrix, label=label)
 
         return obj.img, label
 
