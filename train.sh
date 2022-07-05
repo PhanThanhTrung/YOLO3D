@@ -1,4 +1,4 @@
-python train.py \
+python2 train.py \
     --epochs 100 \
     --batch_size 32 \
     --num_workers 4 \
