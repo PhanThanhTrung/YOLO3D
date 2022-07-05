@@ -103,7 +103,7 @@ class Dataset(data.Dataset):
 
         # hold average dimensions
         # for counting num classes in dataset
-        class_list = ['Car', 'Van', 'Truck', 'Pedestrian','Person_sitting', 'Cyclist', 'Tram', 'Misc']
+        class_list = ['Car', 'Van', 'Truck', 'Pedestrian','Person_sitting', 'Cyclist', 'Tram', 'Misc', 'Trailer']
         self.averages = ClassAverages(class_list)
 
         # list of object [id (000001), line_num]
