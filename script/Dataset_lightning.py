@@ -63,7 +63,7 @@ class KITTIDataModule(pl.LightningDataModule):
         self.KITTI_train, self.KITTI_val = random_split(self.KITTI, [self.train_size, self.val_size])
 
     def train_dataloader(self):
-        train_loader = DataLoader(self.KITTI_train, **self.params)          
+        train_loader = DataLoader(self.KITTI_train, **self.params)
         return train_loader
 
     def val_dataloader(self):
@@ -103,7 +103,7 @@ class Dataset(data.Dataset):
 
         # hold average dimensions
         # for counting num classes in dataset
-        class_list = ['Car', 'Van', 'Truck', 'Pedestrian','Person_sitting', 'Cyclist', 'Tram', 'Misc', 'Trailer']
+        class_list = ['Car', 'Van', 'Truck', 'Pedestrian','Person_sitting', 'Cyclist', 'Tram', 'Misc', 'Trailer','bus', 'construction_vehicle', 'other_vehicle', 'bicycle','motorcycle','emergency_vehicle','animal']
         self.averages = ClassAverages(class_list)
 
         # list of object [id (000001), line_num]
@@ -121,27 +121,30 @@ class Dataset(data.Dataset):
                 self.labels[id] = {}
                 last_id = id
             self.labels[id][str(line_num)] = label
-        
+
         # current id and image
         # one image at a time
         self.curr_id = ""
         self.curr_img = None
-    
+
     def __getitem__(self, index):
-        id = self.object_list[index][0]
-        line_num = self.object_list[index][1]
+        try:
+            id = self.object_list[index][0]
+            line_num = self.object_list[index][1]
 
-        if id != self.curr_id:
-            self.curr_id = id
-            # read image (.png)
-            self.curr_img = cv2.imread(self.top_img_path + f'{id}.png')
+            if id != self.curr_id:
+                self.curr_id = id
+                # read image (.png)
+                self.curr_img = cv2.imread(self.top_img_path + f'{id}.png')
 
-        label = self.labels[id][str(line_num)]
+            label = self.labels[id][str(line_num)]
 
-        current_calib_file = self.top_calib_path + f'{id}.txt'
-        proj_matrix = get_P(current_calib_file)
-        obj = DetectedObject(self.curr_img, label['Class'], label['Box_2D'], self.proj_matrix, label=label)
-
+            current_calib_file = self.top_calib_path + f'{id}.txt'
+            proj_matrix = get_P(current_calib_file)
+            obj = DetectedObject(self.curr_img, label['Class'], label['Box_2D'], proj_matrix, label=label)
+        except Exception as e:
+            # logger.warning('Skipped sample (index {0}, file {1}). {2}'.format(idx, self.image_path_and_label[idx], str(e)))
+            return self.__getitem__((index + 1) % len(self.num_images))
         return obj.img, label
 
     def __len__(self):
@@ -188,10 +191,10 @@ class Dataset(data.Dataset):
                 bin_idxs.append(bin_idx)
 
         return bin_idxs
-            
+
     def format_label(self, line):
         line = line[:-1].split(' ')
-        
+
         Class = line[0]
 
         for i in range(1, len(line)):

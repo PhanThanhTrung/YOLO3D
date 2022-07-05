@@ -86,7 +86,7 @@ def train(
     # model
     base_model = model_factory[select_model]
     model = regressor_factory[select_model](model=base_model).cuda()
-    
+
     # optimizer
     opt_SGD = torch.optim.SGD(model.parameters(), lr=hyper_params['lr'], momentum=0.9)
 
@@ -113,8 +113,8 @@ def train(
         first_epoch = checkpoint['epoch']
         loss = checkpoint['loss']
 
-        print(f'[INFO] Using previous model {latest_model} at {first_epoch} epochs')
-        print('[INFO] Resuming training...')
+        # print(f'[INFO] Using previous model {latest_model} at {first_epoch} epochs')
+        # print('[INFO] Resuming training...')
 
     total_num_batches = int(len(dataset) / hyper_params['batch_size'])
 
@@ -141,7 +141,7 @@ def train(
                     # loss
                     orient_loss = orient_loss_func(orient, truth_orient, truth_conf)
                     dim_loss = dim_loss_func(dim, truth_dim)
-                    
+
                     truth_conf = torch.max(truth_conf, dim=1)[1]
                     conf_loss = conf_loss_func(conf, truth_conf)
 
