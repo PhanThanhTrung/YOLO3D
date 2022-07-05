@@ -144,7 +144,7 @@ class Dataset(data.Dataset):
             obj = DetectedObject(self.curr_img, label['Class'], label['Box_2D'], proj_matrix, label=label)
         except Exception as e:
             # logger.warning('Skipped sample (index {0}, file {1}). {2}'.format(idx, self.image_path_and_label[idx], str(e)))
-            return self.__getitem__((index + 1) % len(self.num_images))
+            return self.__getitem__((index + 1) % self.num_images)
         return obj.img, label
 
     def __len__(self):
@@ -160,7 +160,7 @@ class Dataset(data.Dataset):
                 for line_num, line in enumerate(file):
                     line = line[:-1].split(' ')
                     obj_class = line[0]
-                    if obj_class == "DontCare":
+                    if obj_class in ['DontCare','Pedestrian','Person_sitting','Cyclist', 'bicycle','other_vehicle','motorcycle','animal']:
                         continue
 
                     dimension =  np.array([float(line[8]), float(line[9]), float(line[10])], dtype=np.double)
