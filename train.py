@@ -15,12 +15,12 @@ writer = SummaryWriter()
 from comet_ml import Experiment
 
 from script.Dataset import Dataset
-from script.Model import ResNet18, VGG11, OrientationLoss
+from script.Model import ResNet18, VGG11, MobileNetv2, OrientationLoss
 
 import torch
 import torch.nn as nn
 import torchvision
-from torchvision.models import resnet18, vgg11
+from torchvision.models import resnet18, vgg11, mobilenetv2
 from torch.utils import data
 
 FILE = Path(__file__).resolve()
@@ -32,11 +32,13 @@ ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # relative
 # model factory to choose model
 model_factory = {
     'resnet18': resnet18(pretrained=True),
-    'vgg11': vgg11(pretrained=True)
+    'vgg11': vgg11(pretrained=True),
+    'mobilenetv2': mobilenetv2(pretrained=True)
 }
 regressor_factory = {
     'resnet18': ResNet18,
-    'vgg11': VGG11
+    'vgg11': VGG11,
+    'mobilenetv2': MobileNetv2
 }
 
 
