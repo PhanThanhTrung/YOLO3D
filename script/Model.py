@@ -33,7 +33,7 @@ class MobileNetv2(nn.Module):
 
         # orientation head, for orientation estimation
         self.orientation = nn.Sequential(
-            nn.Linear(512 * 7 * 7, 256),
+            nn.Linear(1280 * 7 * 7, 256),
             nn.ReLU(True),
             nn.Dropout(),
             nn.Linear(256, 256),
@@ -44,29 +44,26 @@ class MobileNetv2(nn.Module):
 
         # confident head, for orientation estimation
         self.confidence = nn.Sequential(
-            nn.Linear(512 * 7 * 7, 256),
+            nn.Linear(1280 * 7 * 7, 256),
             nn.ReLU(True),
             nn.Dropout(),
-            nn.Linear(256, 256),
-            nn.ReLU(True),
-            nn.Dropout(),
-            nn.Linear(256, bins)  
+            nn.Linear(256, bins) # 2 bins   
         )
 
         # dimension head
         self.dimension = nn.Sequential(
-            nn.Linear(512 * 7 * 7, 256),
+            nn.Linear(1280 * 7 * 7, 512),
             nn.ReLU(True),
             nn.Dropout(),
-            nn.Linear(256, 256),
+            nn.Linear(512, 512),
             nn.ReLU(True),
             nn.Dropout(),
-            nn.Linear(256, 3) # x, y, z
+            nn.Linear(512, 3) # x, y, z
         )
 
     def forward(self, x):
         x = self.model(x)
-        x = x.view(-1, 512 * 7 * 7)
+        x = x.view(-1, 1280 * 7 * 7)
 
         orientation = self.orientation(x)
         orientation = orientation.view(-1, self.bins, 2)
