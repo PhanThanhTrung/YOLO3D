@@ -22,7 +22,7 @@ ROOT = FILE.parents[0]  # YOLOv5 root directory
 if str(ROOT) not in sys.path:
     sys.path.append(str(ROOT))  # add ROOT to PATH
 ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # relative
-
+ignore_objclass = ['Car', 'Van', 'Truck', 'Tram', 'Misc', 'Trailer','bus', 'construction_vehicle', "DontCare"]
 def generate_bins(bins):
     angle_bins = np.zeros(bins)
     interval = 2 * np.pi / bins
@@ -66,7 +66,7 @@ class Dataset(data.Dataset):
 
         # hold average dimensions
         # for counting num classes in dataset
-        class_list = ['Car', 'Van', 'Truck', 'Pedestrian','Person_sitting', 'Cyclist', 'Tram', 'Misc']
+        class_list = ['Car', 'Van', 'Truck', 'Pedestrian','Person_sitting', 'Cyclist', 'Tram', 'Misc', 'Trailer','bus', 'construction_vehicle']
         self.averages = ClassAverages(class_list)
 
         # list of object [id (000001), line_num]
@@ -91,20 +91,22 @@ class Dataset(data.Dataset):
         self.curr_img = None
     
     def __getitem__(self, index):
-        id = self.object_list[index][0]
-        line_num = self.object_list[index][1]
+        try:
+            id = self.object_list[index][0]
+            line_num = self.object_list[index][1]
 
-        if id != self.curr_id:
-            self.curr_id = id
-            # read image (.png)
-            self.curr_img = cv2.imread(self.top_img_path + f'{id}.png')
+            if id != self.curr_id:
+                self.curr_id = id
+                # read image (.png)
+                self.curr_img = cv2.imread(self.top_img_path + f'{id}.png')
 
-        label = self.labels[id][str(line_num)]
+            label = self.labels[id][str(line_num)]
 
-        current_calib_file = self.top_calib_path + f'{id}.txt'
-        proj_matrix = get_P(current_calib_file)
-        obj = DetectedObject(self.curr_img, label['Class'], label['Box_2D'], proj_matrix, label=label)
-
+            current_calib_file = self.top_calib_path + f'{id}.txt'
+            proj_matrix = get_P(current_calib_file)
+            obj = DetectedObject(self.curr_img, label['Class'], label['Box_2D'], proj_matrix, label=label)
+        except:
+            return self.__getitem__((index+1)%self.num_images)
         return obj.img, label
 
     def __len__(self):
@@ -120,7 +122,7 @@ class Dataset(data.Dataset):
                 for line_num, line in enumerate(file):
                     line = line[:-1].split(' ')
                     obj_class = line[0]
-                    if obj_class == "DontCare":
+                    if obj_class in ignore_objclass:
                         continue
 
                     dimension =  np.array([float(line[8]), float(line[9]), float(line[10])], dtype=np.double)
