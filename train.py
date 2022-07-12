@@ -20,7 +20,7 @@ from script.Model import ResNet18, VGG11, MobileNetv2, OrientationLoss
 import torch
 import torch.nn as nn
 import torchvision
-from torchvision.models import resnet18, vgg11, mobilenetv2
+from torchvision.models import resnet18, vgg11, mobilenet_v2
 from torch.utils import data
 
 FILE = Path(__file__).resolve()
@@ -33,7 +33,7 @@ ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # relative
 model_factory = {
     'resnet18': resnet18(pretrained=True),
     'vgg11': vgg11(pretrained=True),
-    'mobilenetv2': mobilenetv2(pretrained=True)
+    'mobilenetv2': mobilenet_v2(pretrained=True)
 }
 regressor_factory = {
     'resnet18': ResNet18,
@@ -134,12 +134,12 @@ def train(
                     truth_conf = local_labels['Confidence'].float().cuda()
                     truth_dim = local_labels['Dimensions'].float().cuda()
 
+                    # import ipdb; ipdb.set_trace()
                     # convert to cuda
                     local_batch = local_batch.float().cuda()
 
                     # forward
                     [orient, conf, dim] = model(local_batch)
-
                     # loss
                     orient_loss = orient_loss_func(orient, truth_orient, truth_conf)
                     dim_loss = dim_loss_func(dim, truth_dim)
