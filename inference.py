@@ -25,7 +25,7 @@ from utils.torch_utils import select_device, time_sync
 
 import torch
 import torch.nn as nn
-from torchvision.models import resnet18, vgg11
+from torchvision.models import resnet18, vgg11, mobilenet_v2
 
 import numpy as np
 
@@ -33,18 +33,20 @@ from script.Dataset import generate_bins, DetectedObject
 from library.Math import *
 from library.Plotting import *
 from script import Model, ClassAverages
-from script.Model import ResNet, ResNet18, VGG11
+from script.Model import ResNet, ResNet18, VGG11, MobileNetv2
 
 # model factory to choose model
 model_factory = {
     'resnet': resnet18(pretrained=True),
     'resnet18': resnet18(pretrained=True),
+    'mobilenetv2': mobilenet_v2(pretrained=True)
     # 'vgg11': vgg11(pretrained=True)
 }
 regressor_factory = {
     'resnet': ResNet,
     'resnet18': ResNet18,
-    'vgg11': VGG11
+    'vgg11': VGG11,
+    'mobilenetv2': MobileNetv2
 }
 
 class Bbox:
@@ -252,14 +254,14 @@ def plot3d(
 def parse_opt():
     parser = argparse.ArgumentParser()
     parser.add_argument('--weights', nargs='+', type=str, default=ROOT / 'yolov5s.pt', help='model path(s)')
-    parser.add_argument('--source', type=str, default=ROOT / 'eval/image_2', help='file/dir/URL/glob, 0 for webcam')
+    parser.add_argument('--source', type=str, default='/mnt/ebs1/miles/test_vdeo_img/', help='file/dir/URL/glob, 0 for webcam')
     parser.add_argument('--data', type=str, default=ROOT / 'data/coco128.yaml', help='(optional) dataset.yaml path')
     parser.add_argument('--imgsz', '--img', '--img-size', nargs='+', type=int, default=[640], help='inference size h,w')
-    parser.add_argument('--device', default='', help='cuda device, i.e. 0 or 0,1,2,3 or cpu')
-    parser.add_argument('--classes', default=[0, 2, 3, 5], nargs='+', type=int, help='filter by class: --classes 0, or --classes 0 2 3')
-    parser.add_argument('--reg_weights', type=str, default='weights/epoch_10.pkl', help='Regressor model weights')
-    parser.add_argument('--model_select', type=str, default='resnet', help='Regressor model list: resnet, vgg, eff')
-    parser.add_argument('--calib_file', type=str, default=ROOT / 'eval/camera_cal/calib_cam_to_cam.txt', help='Calibration file or path')
+    parser.add_argument('--device', default='0', help='cuda device, i.e. 0 or 0,1,2,3 or cpu')
+    parser.add_argument('--classes', default=[3, 5, 7], nargs='+', type=int, help='filter by class: --classes 0, or --classes 0 2 3')
+    parser.add_argument('--reg_weights', type=str, default='/mnt/ebs1/miles/YOLO3D/weights/mobilenetv2_epoch_31.pkl', help='Regressor model weights')
+    parser.add_argument('--model_select', type=str, default='mobilenetv2', help='Regressor model list: resnet, vgg, eff')
+    parser.add_argument('--calib_file', type=str, default='/mnt/ebs1/miles/YOLO3D/dataset/KITTI/calib_cam_to_cam.txt', help='Calibration file or path')
     parser.add_argument('--show_result', action='store_true', help='Show Results with imshow')
     parser.add_argument('--save_result', action='store_true', help='Save result')
     parser.add_argument('--output_path', type=str, default=ROOT / 'output', help='Save output pat')
