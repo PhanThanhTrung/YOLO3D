@@ -92,9 +92,8 @@ def detect3d(
             data='data/coco128.yaml',
             imgsz=[640, 640],
             device=0,
-            classes=[0, 2, 3, 5]
+            classes=[2, 5, 7]
         )
-
         for det in dets:
             if not averages.recognized_class(det.detected_class):
                 continue
@@ -102,7 +101,6 @@ def detect3d(
                 detectedObject = DetectedObject(img, det.detected_class, det.box_2d, calib)
             except:
                 continue
-
             theta_ray = detectedObject.theta_ray
             input_img = detectedObject.img
             proj_matrix = detectedObject.proj_matrix
@@ -254,17 +252,17 @@ def plot3d(
 def parse_opt():
     parser = argparse.ArgumentParser()
     parser.add_argument('--weights', nargs='+', type=str, default=ROOT / 'yolov5s.pt', help='model path(s)')
-    parser.add_argument('--source', type=str, default='/mnt/ebs1/miles/test_vdeo_img/', help='file/dir/URL/glob, 0 for webcam')
+    parser.add_argument('--source', type=str, default='/mnt/ebs1/miles/lyft_kitti/training/', help='file/dir/URL/glob, 0 for webcam')
     parser.add_argument('--data', type=str, default=ROOT / 'data/coco128.yaml', help='(optional) dataset.yaml path')
     parser.add_argument('--imgsz', '--img', '--img-size', nargs='+', type=int, default=[640], help='inference size h,w')
     parser.add_argument('--device', default='0', help='cuda device, i.e. 0 or 0,1,2,3 or cpu')
-    parser.add_argument('--classes', default=[3, 5, 7], nargs='+', type=int, help='filter by class: --classes 0, or --classes 0 2 3')
-    parser.add_argument('--reg_weights', type=str, default='/mnt/ebs1/miles/YOLO3D/weights/mobilenetv2_epoch_31.pkl', help='Regressor model weights')
+    parser.add_argument('--classes', default=[2, 5, 7], nargs='+', type=int, help='filter by class: --classes 0, or --classes 0 2 3')
+    parser.add_argument('--reg_weights', type=str, default='/mnt/ebs1/miles/YOLO3D/weights/yeahhh_provided_cam2cam/mobilenetv2_epoch_50.pkl', help='Regressor model weights')
     parser.add_argument('--model_select', type=str, default='mobilenetv2', help='Regressor model list: resnet, vgg, eff')
     parser.add_argument('--calib_file', type=str, default='/mnt/ebs1/miles/YOLO3D/dataset/KITTI/calib_cam_to_cam.txt', help='Calibration file or path')
-    parser.add_argument('--show_result', action='store_true', help='Show Results with imshow')
-    parser.add_argument('--save_result', action='store_true', help='Save result')
-    parser.add_argument('--output_path', type=str, default=ROOT / 'output', help='Save output pat')
+    parser.add_argument('--show_result', action='store_true', default=False, help='Show Results with imshow')
+    parser.add_argument('--save_result', action='store_true', default=True, help='Save result')
+    parser.add_argument('--output_path', type=str, default='/mnt/ebs1/miles/YOLO3D/output/', help='Save output pat')
 
     opt = parser.parse_args()
     opt.imgsz *= 2 if len(opt.imgsz) == 1 else 1  # expand

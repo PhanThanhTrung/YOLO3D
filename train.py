@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 from tqdm import tqdm
-from torch.utils.tensorboard import SummaryWriter
+from tensorboardX import SummaryWriter
 writer = SummaryWriter()
 
 from comet_ml import Experiment

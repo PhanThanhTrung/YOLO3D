@@ -17,6 +17,7 @@ from library.Calib import get_P
 
 from .ClassAverages import ClassAverages
 
+
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[0]  # YOLOv5 root directory
 if str(ROOT) not in sys.path:
@@ -44,7 +45,7 @@ class Dataset(data.Dataset):
         # using global calib file
         self.global_calib = path + '/calib_cam_to_cam.txt'
 
-        # self.proj_matrix = get_P(self.global_calib)
+        # self.proj_matrix = get_P('/mnt/ebs1/miles/YOLO3D/dataset/KITTI/calib_cam_to_cam.txt')
 
         # get index of image_2 files
         self.ids = [x.split('.')[0] for x in sorted(os.listdir(self.top_calib_path))]
@@ -256,10 +257,8 @@ class DetectedObject:
         pt1, pt2 = box_2d[0], box_2d[1]
         crop = img[pt1[1]:pt2[1]+1, pt1[0]:pt2[0]+1]
         crop = cv2.resize(crop, (224, 224), interpolation=cv2.INTER_CUBIC)
-
         # apply transform for batch
         batch = process(crop)
-
         return batch
 
 
